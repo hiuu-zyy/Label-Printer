@@ -90,7 +90,7 @@ class TaskPlanner:
     def ready_position(self, real_world_coordinates):
         fine_tuned = []
         for p in real_world_coordinates:
-            p[0] = p[0] - p[2]*np.sin(np.radians(self.LP_tilt_angle))*np.cos(np.radians(self.LP_tilt_angle))
+            p[1] = p[1] - p[2]*np.sin(np.radians(self.LP_tilt_angle))*np.cos(np.radians(self.LP_tilt_angle))
             distance = p[2]*np.cos(np.radians(self.LP_tilt_angle))
             p[2] = p[2]*np.sin(np.radians(self.LP_tilt_angle))**2
             p.append(distance)  # add 50mm above the surface
