@@ -144,6 +144,7 @@ class TaskPlanner:
         pair_pos = []
         for p in real_world_coordinates:
             down = [p[0], p[1], p[2], self.robot_real_instance.getcurrent_TCP()[3], self.robot_real_instance.getcurrent_TCP()[4], self.robot_real_instance.getcurrent_TCP()[5]]
+            logger.debug(f"Screw down position: {down}")
             # down = [-200, -800, 300, 90, 0, 0]
             T_ee2base = self.get_robot_transform_matrix(down)
             local_point_homogeneous = np.array([[0, 100, 0, 1]]).T
@@ -151,6 +152,9 @@ class TaskPlanner:
             base_point = base_point.flatten()
             x_base, y_base, z_base = base_point[0], base_point[1], base_point[2]
             rx, ry, rz = self.robot_real_instance.getcurrent_TCP()[3:]
+            x_base =round(x_base,2)
+            y_base =round(y_base,2)
+            z_base =round(z_base,2)
             logger.debug(f"Screw down position calculated: {[x_base, y_base, z_base, rx, ry, rz]}")
             up = ([x_base, y_base, z_base, rx, ry, rz])
             pair = [down, up]

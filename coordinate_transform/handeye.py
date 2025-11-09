@@ -222,8 +222,8 @@ class HandeyeTransformer:
         """
         # Load calibration matrix
         try:
-            T_cam2gripper_file = "/home/msis/Desktop/Label-Printer/calibration/matrixs/T_cam2gripper_HORAUD.npz"
-            intrinsic_matrix_file = "/home/msis/Desktop/Label-Printer/calibration/matrixs/IntrinsicMatrix.npz"
+            T_cam2gripper_file = "/home/msis/Desktop/Label-Printer/handeye_calibration_data/FinalTransforms/T_cam2gripper_HORAUD.npz"
+            intrinsic_matrix_file = "/home/msis/Desktop/Label-Printer/handeye_calibration_data/FinalTransforms/IntrinsicMatrix.npz"
             # T_cam2gripper_file = "T_cam2gripper_HORAUD.npz"
         except Exception as e:
             logger.error(f"Error loading calibration files: {e}")
@@ -261,9 +261,9 @@ class HandeyeTransformer:
         for i, center in enumerate(point):
             try:
                 center_x, center_y = center[0], center[1]
-                center_x += (center_x - u0) * 0 #pixel_x_factor
+                center_x += (center_x - u0) * 0.02 #pixel_x_factor
                 center_x = round(center_x, 2)
-                center_y += (center_y - v0) * 0 #pixel_y_factor
+                center_y += (center_y - v0) * 0.025 #pixel_y_factor
                 center_y = round(center_y, 2)
                 # Skip if we couldn't extract center coordinates
                 if center_x is None or center_y is None:
@@ -277,6 +277,7 @@ class HandeyeTransformer:
                     depth_array, (center_x, center_y), 
                     radius=20, depth_scale=depth_scale, num_points=16
                 )
+                logger.debug(f"Estimated depth at center: {Z_m:.4f} m")
                 
                 # Apply camera-specific coordinate transformations
                 transformed_coords = self._pixel_to_world_with_intrinsics(
