@@ -1,9 +1,9 @@
 label_printer:
-  tilt_angle: 45
+  tilt_angle: 11.5
 
 robot:
   ip_address: "192.168.1.100"
 
 positions:
-  scan_position: [300, 0, 150, 90, 60, 0]
-  home_position: [400, 0, 300, 90, 0, 0]
+  scan_position: [-217, -800, 360, 77, 0, 0]
+  home_position: [273.62, -390.3, 200, 90, 0, 0]

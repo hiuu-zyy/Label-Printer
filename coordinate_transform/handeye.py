@@ -208,7 +208,7 @@ class HandeyeTransformer:
         angle_deg = -self._wrap_to_minus90_90(angle_raw)
         return angle_deg, (p0, p1), P
 
-    def transform(self, point, depth_image, camera_intrinsics=None, depth_scale=None, robot_current_tcp=None, config_calibration={}):
+    def transform(self, point, depth_image, camera_intrinsics=None, depth_scale=None, robot_current_tcp=None):
         """
         Transform detection coordinates to robot coordinates using depth information.
         
@@ -222,8 +222,8 @@ class HandeyeTransformer:
         """
         # Load calibration matrix
         try:
-            T_cam2gripper_file = "/home/hieu/rb5_nlp_project/calibration_matrix/T_cam2gripper_HORAUD.npz"
-            intrinsic_matrix_file = "/home/hieu/rb5_nlp_project/calibration_matrix/IntrinsicMatrix.npz"
+            T_cam2gripper_file = "/home/msis/Desktop/Label-Printer/calibration/matrixs/T_cam2gripper_HORAUD.npz"
+            intrinsic_matrix_file = "/home/msis/Desktop/Label-Printer/calibration/matrixs/IntrinsicMatrix.npz"
             # T_cam2gripper_file = "T_cam2gripper_HORAUD.npz"
         except Exception as e:
             logger.error(f"Error loading calibration files: {e}")
@@ -261,7 +261,9 @@ class HandeyeTransformer:
         for i, center in enumerate(point):
             try:
                 center_x, center_y = center[0], center[1]
+                center_x += (center_x - u0) * 0 #pixel_x_factor
                 center_x = round(center_x, 2)
+                center_y += (center_y - v0) * 0 #pixel_y_factor
                 center_y = round(center_y, 2)
                 # Skip if we couldn't extract center coordinates
                 if center_x is None or center_y is None:
@@ -273,7 +275,7 @@ class HandeyeTransformer:
                 # Get depth at detection center
                 Z_m = self.median_depth_on_circle(
                     depth_array, (center_x, center_y), 
-                    radius=10, depth_scale=depth_scale, num_points=16
+                    radius=20, depth_scale=depth_scale, num_points=16
                 )
                 
                 # Apply camera-specific coordinate transformations

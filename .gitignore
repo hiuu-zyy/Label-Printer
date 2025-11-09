@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+build/
+dist/
+venv/
+env/
+.venv/
+.env
+.vscode/
+detection_results/
+handeye_calibration_data/
+temp/
+weights/
+wrapper/__pycache__/

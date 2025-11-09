@@ -52,12 +52,24 @@ class VisionWrapper:
         """
         Runs two-stage inference on the input image and returns detections.
         """
-        try: 
-            img = cv2.imread(image_or_img_path)
-        except: 
-            pass
-        if img is None or img.shape[0] == 0 or img.shape[1] == 0:
-            raise ValueError(f"Invalid image: {image_or_img_path}")
+        # Handle both file paths and numpy arrays
+        if isinstance(image_or_img_path, (str, bytes, os.PathLike)):
+            # It's a file path, try to load it
+            try: 
+                img = cv2.imread(image_or_img_path)
+                if img is None:
+                    raise ValueError(f"Could not load image from path: {image_or_img_path}")
+            except Exception as e:
+                raise ValueError(f"Failed to load image from path: {image_or_img_path}, Error: {e}")
+        else:
+            # It's already a numpy array (image data)
+            img = image_or_img_path
+        
+        # Validate the image
+        if img is None or not isinstance(img, np.ndarray):
+            raise ValueError(f"Invalid image data provided")
+        if len(img.shape) != 3 or img.shape[0] == 0 or img.shape[1] == 0:
+            raise ValueError(f"Invalid image dimensions: {img.shape if hasattr(img, 'shape') else 'unknown'}")
 
         # Stage 1: Detect RoIs using the first model
         results_roi = self.roi_model(img)

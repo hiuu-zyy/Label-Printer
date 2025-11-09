@@ -92,6 +92,14 @@ class SimpleRobot:
         time.sleep(2)
         print("Gripper initialized")
 
+    def rotate_screw(self):
+        ManualScript("digital_out 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1")
+        print("Screw rotated")
+
+    def stop_screw_rotation(self):
+        ManualScript("digital_out 0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1")
+        print("Screw rotation stopped")
+
     def disconnect(self):
         DisConnectToCB()
         print("Disconnected.")
