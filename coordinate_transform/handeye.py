@@ -263,7 +263,7 @@ class HandeyeTransformer:
                 center_x, center_y = center[0], center[1]
                 center_x += (center_x - u0) * 0.02 #pixel_x_factor
                 center_x = round(center_x, 2)
-                center_y += (center_y - v0) * 0.025 #pixel_y_factor
+                center_y += (center_y - v0) * 0.015 #pixel_y_factor
                 center_y = round(center_y, 2)
                 # Skip if we couldn't extract center coordinates
                 if center_x is None or center_y is None:

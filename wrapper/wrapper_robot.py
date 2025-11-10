@@ -53,25 +53,42 @@ class SimpleRobot:
         # getting current joint position to compare with the target joint position
         # cur_pose = [GetCurrentTCP().x,GetCurrentTCP().y,GetCurrentTCP().z,GetCurrentTCP().rx,GetCurrentTCP().ry,GetCurrentTCP().rz]
 
-        pose_array_cur = np.array(self.getcurrent_TCP())
+        current_tcp = self.getcurrent_TCP()
+        if current_tcp is None:
+            print("[WARNING] Cannot check arrival - current TCP position is None")
+            return False
+            
+        pose_array_cur = np.array(current_tcp)
         pose_array_given = np.array(pose)
 
         # Compare the current TCP position with the target TCP position
         return np.allclose(pose_array_cur,pose_array_given, atol=0.05)
 
-    def getcurrent_TCP(x=0, y=0, z=0, rx=0, ry=0, rz=0):
-        p = GetCurrentTCP()
-        if p is None:
-            raise Exception("Failed to get current TCP position.")
-        current_position = np.array([
-            round(p.x, 2),
-            round(p.y, 2),
-            round(p.z, 2),
-            round(p.rx, 2),
-            round(p.ry, 2),
-            round(p.rz, 2)
-        ], dtype=np.float32)
-        return current_position
+    def getcurrent_TCP(self, x=0, y=0, z=0, rx=0, ry=0, rz=0):
+        """
+        Get current TCP position with error handling.
+        
+        Returns:
+            numpy array of [x, y, z, rx, ry, rz] or None if failed
+        """
+        try:
+            p = GetCurrentTCP()
+            if p is None:
+                print("[WARNING] GetCurrentTCP() returned None")
+                return None
+            
+            current_position = np.array([
+                round(p.x, 2),
+                round(p.y, 2),
+                round(p.z, 2),
+                round(p.rx, 2),
+                round(p.ry, 2),
+                round(p.rz, 2)
+            ], dtype=np.float32)
+            return current_position
+        except Exception as e:
+            print(f"[ERROR] Failed to get current TCP position: {e}")
+            return None
 
     # def move_joint(self, j1, j2, j3, j4, j5, j6, speed=100, acc=500):
     #     MoveJ(j1, j2, j3, j4, j5, j6, speed, acc)
