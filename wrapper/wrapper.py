@@ -41,16 +41,43 @@ def euler_zyx_deg_to_R(rx_deg, ry_deg, rz_deg):
 
 
 class TaskPlanner:
-    def __init__(self, roi_model_path, object_model_path, camera_intrinsics, config_path=None):
+    def __init__(self, roi_model_path, object_model_path, camera_intrinsics, config_path=None, printer_model='XD5-40IIt'):
+        """
+        Initialize TaskPlanner with specific printer model configuration.
+        
+        Args:
+            roi_model_path: Path to ROI detection model
+            object_model_path: Path to object detection model  
+            camera_intrinsics: Camera intrinsic parameters
+            config_path: Path to configuration file
+            printer_model: Specific printer model (XD5-40IIt, XL5-40CT, SLP-DX420, SLP-D220)
+        """
+        self.printer_model = printer_model
         self.config = {}
+        
+        # Load configuration file
         if config_path and os.path.exists(config_path):
             with open(config_path, 'r') as f:
                 self.config = yaml.safe_load(f)
         
-        self.LP_tilt_angle = self.config.get('label_printer', {}).get('tilt_angle', 45)
+        # Validate printer model exists in config
+        if printer_model not in self.config.get('Printer', {}):
+            available_models = list(self.config.get('Printer', {}).keys())
+            raise ValueError(f"Printer model '{printer_model}' not found in config. Available models: {available_models}")
+        
+        # Get printer-specific configuration
+        printer_config = self.config['Printer'][printer_model]
+        
+        # Set printer-specific parameters
+        self.LP_tilt_angle = printer_config.get('tilt_angle', 45)
+        self.screw_depth_mm = printer_config.get('screw_depth_mm', [5, 5, 15, 15])  # Default depths
         self.rotation = [90.0 - self.LP_tilt_angle, 0, 0]
+        
+        print(f"[INFO] Initialized for printer model: {printer_model}")
+        print(f"[INFO] Tilt angle: {self.LP_tilt_angle}°")
+        print(f"[INFO] Screw depths: {self.screw_depth_mm} mm")
 
-        # self.Gripper_real = Gripper_real()
+        # Initialize camera pipeline
         self.pipeline = rs.pipeline()
         config = rs.config()
         config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 5)
@@ -63,8 +90,9 @@ class TaskPlanner:
         color_stream = self.profile.get_stream(rs.stream.color)
         self.intrinsics = color_stream.as_video_stream_profile().get_intrinsics()
         
-        # Initialize real robot instance
-        self.robot_real_instance = SimpleRobot(ip = "192.168.2.36")
+        # Initialize robot instance
+        robot_ip = self.config.get('robot', {}).get('ip_address', '192.168.2.36')
+        self.robot_real_instance = SimpleRobot(ip=robot_ip)
 
         # Initialize vision wrapper
         self.vision_wrapper = VisionWrapper(roi_model_path=roi_model_path, object_model_path=object_model_path)
@@ -223,7 +251,7 @@ class TaskPlanner:
         sorted_remaining_4 = sorted(detection_nn, key=get_clockwise_angle)
 
         # Step 3: Combine starting point with sorted remaining detections
-        result =  sorted_remaining_1 + sorted_remaining_2 + sorted_remaining_3 + sorted_remaining_4 + [closest_detection]
+        result =  [closest_detection] + sorted_remaining_1 + sorted_remaining_2 + sorted_remaining_3 + sorted_remaining_4
 
         logger.debug(f"Sorted {len(centers)} detections: starting from origin, then clockwise")
 
@@ -240,18 +268,38 @@ class TaskPlanner:
         x_base = round(x_base, 2)
         y_base = round(y_base, 2)
         z_base = round(z_base, 2)
-        rx, ry, rz = self.robot_real_instance.getcurrent_TCP()[3:]
+        rx, ry, rz = self.rotation
         logger.debug(f"Local movement Y position calculated: {[x_base, y_base, z_base, rx, ry, rz]}")
         return [x_base, y_base, z_base, rx, ry, rz]
     
     def ready_position(self, real_world_coordinates):
-        screw_depth_mm = self.config.get('screw_depth_mm', [5, 5, 15, 15])  # Define how deep the screw should go
+        """
+        Calculate ready positions for screwing based on printer-specific screw depths.
+        
+        Args:
+            real_world_coordinates: List of detected screw hole coordinates
+            
+        Returns:
+            pair_pos: List of [down_position, up_position] pairs for each screw hole
+        """
+        # Use printer-specific screw depths
+        screw_depths = self.screw_depth_mm
+        
+        # Ensure we have enough depth values for all holes
+        num_holes = len(real_world_coordinates)
+        if len(screw_depths) < num_holes:
+            # Repeat the last depth value if we don't have enough
+            last_depth = screw_depths[-1] if screw_depths else 5
+            screw_depths = list(screw_depths) + [last_depth] * (num_holes - len(screw_depths))
+            logger.warning(f"Not enough screw depths configured. Extended with last value: {last_depth}mm")
+        
         pair_pos = []
         for i, p in enumerate(real_world_coordinates):
-            down = self.local_movement_y(p, -screw_depth_mm[i])
-            logger.debug(f"Screw down position: {down}")
+            depth_mm = screw_depths[i]
+            down = self.local_movement_y(p, -depth_mm)
+            logger.debug(f"Screw {i+1} down position (depth: {depth_mm}mm): {down}")
             up = self.local_movement_y(p, 100)
-            logger.debug(f"Screw up position: {up}")
+            logger.debug(f"Screw {i+1} up position: {up}")
             pair = [down, up]
             pair_pos.append(pair)
 
@@ -337,17 +385,23 @@ class TaskPlanner:
         # self.robot_real_instance.move_linear([current_tcp[0], current_tcp[1], current_tcp[2]+50, current_tcp[3], current_tcp[4], current_tcp[5]])
 
     def execute_task(self):
-        # Main task execution logic
+        """
+        Execute the complete screwing task for the configured printer model.
+        """
+        print(f"[INFO] Starting task execution for printer model: {self.printer_model}")
         
         # Step 1: Move to home position
         home_pos = self.config.get('positions', {}).get('home_position', [273.62, -390.3, 200, 90, 0, 0])
+        print(f"[INFO] Moving to home position: {home_pos}")
         self.robot_real_instance.move_linear(home_pos)
 
         # Step 2: Pick screw
+        print("[INFO] Picking screw...")
         self.pick_screw(screw_type='M3')
 
         # Step 3: Move to scan position
         scan_pos = self.config.get('positions', {}).get('scan_position', [-225, -800, 360, 78.5, 0, 0])
+        print(f"[INFO] Moving to scan position: {scan_pos}")
         self.robot_real_instance.move_linear(scan_pos)
 
         # Step 4: Detect screw holes with retry logic
@@ -356,6 +410,7 @@ class TaskPlanner:
             real_world_coords = self.screw_hole_detection(max_attempts=50, retry_delay=0.2)
             fine_tuned_coords = self.ready_position(real_world_coords)
             print(f"[SUCCESS] Successfully detected {len(fine_tuned_coords)} screw hole(s)")
+            print(f"[INFO] Using screw depths: {self.screw_depth_mm[:len(fine_tuned_coords)]} mm")
         except RuntimeError as e:
             print(f"[ERROR] Screw hole detection failed: {e}")
             print("[INFO] Returning to home position...")
@@ -367,26 +422,31 @@ class TaskPlanner:
             print(f"[INFO] Proceeding to screw {len(fine_tuned_coords)} hole(s)")
             # 5.1 Move above each hole
             for i, coord in enumerate(fine_tuned_coords):
-                print(f"[INFO] Processing hole {i+1}/{len(fine_tuned_coords)}")
+                screw_depth = self.screw_depth_mm[i] if i < len(self.screw_depth_mm) else self.screw_depth_mm[-1]
+                print(f"[INFO] Processing hole {i+1}/{len(fine_tuned_coords)} (depth: {screw_depth}mm)")
                 self.robot_real_instance.move_linear(coord[1])
 
                 # Rotate and screw down
                 self.robot_real_instance.rotate_screw()
                 time.sleep(0.1)
                 self.robot_real_instance.move_linear(coord[0])
-                # time.sleep(1)
                 # Move to ready_screw position after screwing
                 self.robot_real_instance.move_linear(coord[1])
                 time.sleep(0.5)
                 self.robot_real_instance.stop_screw_rotation()
-                self.pick_screw(screw_type='M3')
+                
+                # Pick next screw if not the last hole
+                if i < len(fine_tuned_coords) - 1:
+                    self.pick_screw(screw_type='M3')
+                    
                 print(f"[SUCCESS] Completed hole {i+1}/{len(fine_tuned_coords)}")
         else:
             print("[WARNING] No holes to process")
             
         # 5.2 Return to home position
+        print("[INFO] Returning to home position...")
         self.robot_real_instance.move_linear(home_pos)
-        print("[SUCCESS] Task execution completed!")
+        print(f"[SUCCESS] Task execution completed for {self.printer_model}!")
 
 if __name__ == "__main__":
     roi_model_path = '/home/msis/Desktop/Label-Printer/weights/obb/roi/best.pt'
@@ -394,35 +454,108 @@ if __name__ == "__main__":
     camera_intrinsics = None
     config_path = 'config/config.yaml'
 
-    task_planner = TaskPlanner(roi_model_path, object_model_path, camera_intrinsics, config_path)
+    # Available printer models from config
+    available_models = ['XD5-40IIt', 'XL5-40CT', 'SLP-DX420', 'SLP-D220']
     
-    print("Task Planner initialized successfully!")
+    print("Available printer models:")
+    for i, model in enumerate(available_models, 1):
+        print(f"{i}. {model}")
     
+    # Get user selection for printer model
+    while True:
+        try:
+            choice = input(f"\nSelect printer model (1-{len(available_models)}) [default: 1]: ").strip()
+            if not choice:
+                choice = '1'
+            choice_idx = int(choice) - 1
+            if 0 <= choice_idx < len(available_models):
+                selected_model = available_models[choice_idx]
+                break
+            else:
+                print(f"Please enter a number between 1 and {len(available_models)}")
+        except ValueError:
+            print("Please enter a valid number")
+    
+    print(f"\nInitializing Task Planner for {selected_model}...")
+    
+    try:
+        task_planner = TaskPlanner(
+            roi_model_path=roi_model_path, 
+            object_model_path=object_model_path, 
+            camera_intrinsics=camera_intrinsics, 
+            config_path=config_path,
+            printer_model=selected_model
+        )
+        print("Task Planner initialized successfully!")
+    except Exception as e:
+        print(f"Failed to initialize Task Planner: {e}")
+        exit(1)
     
     try:
         while True:
+            print(f"\nCurrent printer model: {selected_model}")
+            print("Commands:")
+            print("  [Enter] or 'run' - Execute task")
+            print("  'change' - Change printer model")
+            print("  'quit' or 'exit' - Exit program")
             
-            print("Press Enter to execute task, or type 'quit' to exit...")
-            user_input = input().strip().lower()
+            user_input = input(">>> ").strip().lower()
             
-            if user_input == 'quit' or user_input == 'exit':
+            if user_input in ['quit', 'exit']:
                 print("Exiting Task Planner...")
                 break
+            elif user_input == 'change':
+                # Change printer model
+                print("\nAvailable printer models:")
+                for i, model in enumerate(available_models, 1):
+                    print(f"{i}. {model}")
+                
+                try:
+                    choice = input(f"Select new printer model (1-{len(available_models)}): ").strip()
+                    choice_idx = int(choice) - 1
+                    if 0 <= choice_idx < len(available_models):
+                        new_model = available_models[choice_idx]
+                        if new_model != selected_model:
+                            print(f"Reinitializing for {new_model}...")
+                            # Cleanup current instance
+                            if hasattr(task_planner, 'pipeline'):
+                                task_planner.pipeline.stop()
+                            # Create new instance
+                            task_planner = TaskPlanner(
+                                roi_model_path=roi_model_path, 
+                                object_model_path=object_model_path, 
+                                camera_intrinsics=camera_intrinsics, 
+                                config_path=config_path,
+                                printer_model=new_model
+                            )
+                            selected_model = new_model
+                            print(f"Successfully switched to {selected_model}")
+                        else:
+                            print("Same model selected, no change needed")
+                    else:
+                        print(f"Invalid selection. Please enter 1-{len(available_models)}")
+                except ValueError:
+                    print("Invalid input. Please enter a number")
+                except Exception as e:
+                    print(f"Error changing printer model: {e}")
+                    
             elif user_input == '' or user_input == 'run':
-                print("Executing task...")
+                print(f"Executing task for {selected_model}...")
                 try:
                     task_planner.execute_task()
                     print("Task completed successfully!")
                 except Exception as e:
                     print(f"Error during task execution: {e}")
-                print("Press Enter to execute task again, or type 'quit' to exit...")
             else:
-                print("Unknown command. Press Enter to execute task, or type 'quit' to exit...")
+                print("Unknown command. Use [Enter] to execute, 'change' to switch models, or 'quit' to exit")
                 
     except KeyboardInterrupt:
         print("\nExiting Task Planner...")
-    # finally:
-    #     # Clean up camera pipeline if needed
-    #     if hasattr(task_planner, 'pipeline'):
-    #         task_planner.pipeline.stop()
+    finally:
+        # Clean up camera pipeline if needed
+        try:
+            if hasattr(task_planner, 'pipeline'):
+                task_planner.pipeline.stop()
+        except:
+            pass
     

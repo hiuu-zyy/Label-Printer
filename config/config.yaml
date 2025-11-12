@@ -1,11 +1,23 @@
-label_printer:
-  tilt_angle: 13.5
-
 robot:
-  ip_address: "192.168.1.100"
+  ip_address: "192.168.2.36"
 
 positions:
   scan_position: [-260, -800, 360, 78, 0, 0]
   home_position: [273.62, -390.3, 200, 90, 0, 0]
 
-screw_depth_mm: [3, 3, 20, 20]
+Printer:
+  XD5-40IIt:
+    tilt_angle: 13.5
+    screw_depth_mm: [20, 3, 3, 20]
+  
+  XL5-40CT:
+    tilt_angle: 11.6
+    screw_depth_mm: [3, 20, 3, 3, 20, 3]
+
+  SLP-DX420:
+    tilt_angle: 18.5
+    screw_depth_mm: [30, 5, 5, 25, 15]
+
+  SLP-D220:
+    tilt_angle: 20.0
+    screw_depth_mm: [30, 30]

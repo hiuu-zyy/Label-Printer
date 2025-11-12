@@ -2,6 +2,7 @@ import numpy as np
 import math
 import pyrealsense2 as rs
 import os
+from typing import Dict, List, Tuple, Optional
 from loguru import logger
 
 # Get the base directory (vision_system_fw/)
@@ -207,6 +208,119 @@ class HandeyeTransformer:
         length, angle_raw, v, p0, p1 = short_edges[0]
         angle_deg = -self._wrap_to_minus90_90(angle_raw)
         return angle_deg, (p0, p1), P
+    
+    def _sort_detections_clockwise_from_topleft(self, centers: List[Tuple[float, float]]) -> List[Dict]:
+        """
+        Sort detections in clockwise order starting from the detection closest to origin (0,0).
+        [DEPRECATED] Use _sort_screws_by_yaml_order for drilling order.
+        
+        Args:
+            detections: List of detection dictionaries with bbox containing x, y
+            
+        Returns:
+            Sorted list of detections with closest to origin first, followed by clockwise order
+        """
+        if not centers or len(centers) <= 1:
+            return centers
+
+        import math
+        
+        # Step 1: Find the detection closest to origin (0, 0)
+        def distance_from_origin(center):
+            x, y = center
+            return math.sqrt(x**2 + y**2)
+        
+        # Find index of detection closest to origin
+        closest_idx = min(range(len(centers)), key=lambda i: distance_from_origin(centers[i]))
+        closest_detection = centers[closest_idx]
+
+        # Get coordinates of the starting point (closest to origin)
+        start_x, start_y = closest_detection
+
+        logger.debug(f"Starting point closest to origin: ({start_x:.1f}, {start_y:.1f})")
+        
+        # Step 2: Sort remaining detections clockwise from the starting point
+        remaining_detections = [d for i, d in enumerate(centers) if i != closest_idx]
+        
+        if not remaining_detections:
+            return [closest_detection]
+        
+        # Split remaining detections into positive (x > start_x) and negative (x <= start_x)
+        detection_pn = []
+        detection_pp = []
+        detection_np = []
+        detection_nn = []
+
+        for d in remaining_detections:
+            x = d[0]
+            y = d[1]
+            # Treat missing x as start_x (so it goes to negative)
+            try:
+                if float(x) > float(start_x):
+                    if float(y) >= float(start_y):
+                        detection_pp.append(d)
+                    else:
+                        detection_pn.append(d)
+                else:
+                    if float(y) >= float(start_y):
+                        detection_np.append(d)
+                    else:
+                        detection_nn.append(d)
+            except Exception:
+                detection_nn.append(d)
+
+        logger.debug(f"Split remaining detections: positive={len(detection_pp)}, negative={len(detection_nn)} (start_x={start_x})")
+
+        # Sort remaining by clockwise angle from starting point
+        def get_clockwise_angle(detection):
+            x = detection[0]
+            y = detection[1]
+
+            # Calculate angle from starting point
+            # Use atan2 with negative y to make clockwise (standard math is counter-clockwise)
+            angle = math.atan((y - start_y) / (x - start_x))
+            
+            return angle
+
+        sorted_remaining_1 = sorted(detection_pn, key=get_clockwise_angle)
+        sorted_remaining_2 = sorted(detection_pp, key=get_clockwise_angle)
+        sorted_remaining_3 = sorted(detection_np, key=get_clockwise_angle)
+        sorted_remaining_4 = sorted(detection_nn, key=get_clockwise_angle)
+
+        # Step 3: Combine starting point with sorted remaining detections
+        result =  sorted_remaining_1 + sorted_remaining_2 + sorted_remaining_3 + sorted_remaining_4 + [closest_detection]
+
+        logger.debug(f"Sorted {len(centers)} detections: starting from origin, then clockwise")
+
+        return result
+    
+    def local_movement_y(self, real_world_coordinates, distance_mm):
+        # Convert local point to robot base frame
+        reference_point = [real_world_coordinates[0], real_world_coordinates[1], real_world_coordinates[2], self.rotation[0], self.rotation[1], self.rotation[2]]
+        T_ee2base = self.get_robot_transform_matrix(reference_point)
+        local_point_homogeneous = np.array([[0, distance_mm, 0, 1]]).T
+        base_point = T_ee2base @ local_point_homogeneous
+        base_point = base_point.flatten()
+        x_base, y_base, z_base = base_point[0], base_point[1], base_point[2]
+        x_base = round(x_base, 2)
+        y_base = round(y_base, 2)
+        z_base = round(z_base, 2)
+        rx, ry, rz = self.robot_real_instance.getcurrent_TCP()[3:]
+        logger.debug(f"Local movement Y position calculated: {[x_base, y_base, z_base, rx, ry, rz]}")
+        return [x_base, y_base, z_base, rx, ry, rz]
+    
+    def ready_position(self, real_world_coordinates, pcb_type='bigger_printer'):
+        screw_depth_mm = self.config.get('screw_depth_mm', {}).get(pcb_type, [5, 5, 15, 15])  # Define how deep the screw should go
+        pair_pos = []
+        for i, p in enumerate(real_world_coordinates):
+            down = self.local_movement_y(p, -screw_depth_mm[i])
+            logger.debug(f"Screw down position: {down}")
+            up = self.local_movement_y(p, 100)
+            logger.debug(f"Screw up position: {up}")
+            pair = [down, up]
+            pair_pos.append(pair)
+
+        return pair_pos
 
     def transform(self, point, depth_image, camera_intrinsics=None, depth_scale=None, robot_current_tcp=None):
         """
