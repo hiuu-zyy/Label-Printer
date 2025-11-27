@@ -296,18 +296,38 @@ class YOLODetectionTest:
                 
                 # Draw detection results manually for better control
                 for det in detections:
+                    # Define colors for different classes
+                    class_colors = {
+                        'H': (0, 255, 0),    # Green for Holes
+                        'P': (0, 0, 255),    # Red for Printer
+                        'R': (255, 0, 0)     # Blue for ROI
+                    }
+                    
+                    # Get color for current class, default to green
+                    color = class_colors.get(det['class'], (0, 255, 0))
+                    
                     # Draw bounding box
                     bbox = np.array(det['bbox']).astype(int)
-                    cv2.polylines(display_image, [bbox], True, (0, 255, 0), 2)
+                    cv2.polylines(display_image, [bbox], True, color, 2)
                     
                     # Draw center point
                     center = det['center']
-                    cv2.circle(display_image, center, 5, (0, 255, 0), -1)
+                    cv2.circle(display_image, center, 5, color, -1)
                     
-                    # Draw class label
-                    cv2.putText(display_image, det['class'], 
-                               (center[0] - 10, center[1] - 10),
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                    # Draw class label with background for better visibility
+                    label = det['class']
+                    label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+                    label_pos = (center[0] - 10, center[1] - 15)
+                    
+                    # Draw label background
+                    cv2.rectangle(display_image, 
+                                 (label_pos[0] - 2, label_pos[1] - label_size[1] - 2),
+                                 (label_pos[0] + label_size[0] + 2, label_pos[1] + 2),
+                                 color, -1)
+                    
+                    # Draw label text
+                    cv2.putText(display_image, label, label_pos,
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
                 
                 # Draw info overlay
                 display_image = self.draw_info_overlay(display_image, detections, current_fps)

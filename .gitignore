@@ -16,3 +16,5 @@ weights/
 wrapper/__pycache__/
 capture_output/
 coordinate_transform/__pycache__/
+*.png
+*.json

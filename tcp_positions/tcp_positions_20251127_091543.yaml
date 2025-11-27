@@ -1,0 +1,389 @@
+positions:
+  position_001:
+    coordinates:
+      rx: 90.14
+      ry: 0.9
+      rz: -0.06
+      x: 96.9
+      y: -760.63
+      z: 222.8
+    metadata:
+      datetime: '2025-11-27T09:15:48.492026'
+      session_elapsed_seconds: 4.612368583679199
+      timestamp: 1764202548.4920244
+    tcp:
+    - 96.9
+    - -760.63
+    - 222.8
+    - 90.14
+    - 0.9
+    - -0.06
+  position_002:
+    coordinates:
+      rx: 85.09
+      ry: -30.43
+      rz: 2.14
+      x: 39.01
+      y: -780.52
+      z: 215.05
+    metadata:
+      datetime: '2025-11-27T09:16:53.845278'
+      session_elapsed_seconds: 69.9656114578247
+      timestamp: 1764202613.8452764
+    tcp:
+    - 39.01
+    - -780.52
+    - 215.05
+    - 85.09
+    - -30.43
+    - 2.14
+  position_003:
+    coordinates:
+      rx: 87.42
+      ry: -27.14
+      rz: 21.29
+      x: 48.53
+      y: -833.72
+      z: 242.71
+    metadata:
+      datetime: '2025-11-27T09:17:40.242138'
+      session_elapsed_seconds: 116.36247181892395
+      timestamp: 1764202660.2421362
+    tcp:
+    - 48.53
+    - -833.72
+    - 242.71
+    - 87.42
+    - -27.14
+    - 21.29
+  position_004:
+    coordinates:
+      rx: 99.74
+      ry: -8.95
+      rz: -2.33
+      x: 67.54
+      y: -842.75
+      z: 214.51
+    metadata:
+      datetime: '2025-11-27T09:17:57.346868'
+      session_elapsed_seconds: 133.4672019481659
+      timestamp: 1764202677.3468664
+    tcp:
+    - 67.54
+    - -842.75
+    - 214.51
+    - 99.74
+    - -8.95
+    - -2.33
+  position_005:
+    coordinates:
+      rx: 94.55
+      ry: 2.11
+      rz: 17.15
+      x: 145.26
+      y: -829.18
+      z: 303.08
+    metadata:
+      datetime: '2025-11-27T09:18:24.217674'
+      session_elapsed_seconds: 160.33800745010376
+      timestamp: 1764202704.2176712
+    tcp:
+    - 145.26
+    - -829.18
+    - 303.08
+    - 94.55
+    - 2.11
+    - 17.15
+  position_006:
+    coordinates:
+      rx: 84.73
+      ry: 28.41
+      rz: -30.08
+      x: 182.26
+      y: -771.61
+      z: 250.16
+    metadata:
+      datetime: '2025-11-27T09:18:47.089874'
+      session_elapsed_seconds: 183.21021485328674
+      timestamp: 1764202727.0898724
+    tcp:
+    - 182.26
+    - -771.61
+    - 250.16
+    - 84.73
+    - 28.41
+    - -30.08
+  position_007:
+    coordinates:
+      rx: 96.38
+      ry: 47.26
+      rz: 2.02
+      x: 197.47
+      y: -809.53
+      z: 191.17
+    metadata:
+      datetime: '2025-11-27T09:19:12.632249'
+      session_elapsed_seconds: 208.75258350372314
+      timestamp: 1764202752.6322474
+    tcp:
+    - 197.47
+    - -809.53
+    - 191.17
+    - 96.38
+    - 47.26
+    - 2.02
+  position_008:
+    coordinates:
+      rx: 103.99
+      ry: 43.17
+      rz: 45.35
+      x: 277.87
+      y: -676.46
+      z: 216.2
+    metadata:
+      datetime: '2025-11-27T09:19:55.385020'
+      session_elapsed_seconds: 251.5053539276123
+      timestamp: 1764202795.3850186
+    tcp:
+    - 277.87
+    - -676.46
+    - 216.2
+    - 103.99
+    - 43.17
+    - 45.35
+  position_009:
+    coordinates:
+      rx: 63.13
+      ry: 7.78
+      rz: 1.59
+      x: 119.25
+      y: -644.06
+      z: 268.56
+    metadata:
+      datetime: '2025-11-27T09:20:29.785203'
+      session_elapsed_seconds: 285.9055380821228
+      timestamp: 1764202829.7852013
+    tcp:
+    - 119.25
+    - -644.06
+    - 268.56
+    - 63.13
+    - 7.78
+    - 1.59
+  position_010:
+    coordinates:
+      rx: 69.88
+      ry: -26.46
+      rz: -12.58
+      x: -3.35
+      y: -662.29
+      z: 249.1
+    metadata:
+      datetime: '2025-11-27T09:20:48.306217'
+      session_elapsed_seconds: 304.42655181884766
+      timestamp: 1764202848.3062153
+    tcp:
+    - -3.35
+    - -662.29
+    - 249.1
+    - 69.88
+    - -26.46
+    - -12.58
+  position_011:
+    coordinates:
+      rx: 87.97
+      ry: -2.08
+      rz: -1.03
+      x: 90.45
+      y: -788.98
+      z: 229.02
+    metadata:
+      datetime: '2025-11-27T09:21:14.604641'
+      session_elapsed_seconds: 330.72497510910034
+      timestamp: 1764202874.6046395
+    tcp:
+    - 90.45
+    - -788.98
+    - 229.02
+    - 87.97
+    - -2.08
+    - -1.03
+  position_012:
+    coordinates:
+      rx: 90.02
+      ry: 1.28
+      rz: 21.39
+      x: 110.26
+      y: -742.58
+      z: 294.99
+    metadata:
+      datetime: '2025-11-27T09:21:29.163524'
+      session_elapsed_seconds: 345.28387475013733
+      timestamp: 1764202889.1635194
+    tcp:
+    - 110.26
+    - -742.58
+    - 294.99
+    - 90.02
+    - 1.28
+    - 21.39
+  position_013:
+    coordinates:
+      rx: 95.47
+      ry: -3.44
+      rz: -71.86
+      x: 66.93
+      y: -681.01
+      z: 345.58
+    metadata:
+      datetime: '2025-11-27T09:21:52.109222'
+      session_elapsed_seconds: 368.2295570373535
+      timestamp: 1764202912.1092198
+    tcp:
+    - 66.93
+    - -681.01
+    - 345.58
+    - 95.47
+    - -3.44
+    - -71.86
+  position_014:
+    coordinates:
+      rx: 61.53
+      ry: -5.91
+      rz: -83.11
+      x: 174.42
+      y: -669.41
+      z: 321.92
+    metadata:
+      datetime: '2025-11-27T09:22:05.010459'
+      session_elapsed_seconds: 381.130793094635
+      timestamp: 1764202925.010449
+    tcp:
+    - 174.42
+    - -669.41
+    - 321.92
+    - 61.53
+    - -5.91
+    - -83.11
+  position_015:
+    coordinates:
+      rx: 106.68
+      ry: 0.34
+      rz: -97.53
+      x: -76.18
+      y: -668.79
+      z: 311.87
+    metadata:
+      datetime: '2025-11-27T09:22:14.355694'
+      session_elapsed_seconds: 390.47603130340576
+      timestamp: 1764202934.3556914
+    tcp:
+    - -76.18
+    - -668.79
+    - 311.87
+    - 106.68
+    - 0.34
+    - -97.53
+  position_016:
+    coordinates:
+      rx: 67.96
+      ry: -0.5
+      rz: -53.72
+      x: 115.97
+      y: -636.21
+      z: 410.6
+    metadata:
+      datetime: '2025-11-27T09:22:38.615909'
+      session_elapsed_seconds: 414.7362434864044
+      timestamp: 1764202958.615907
+    tcp:
+    - 115.97
+    - -636.21
+    - 410.6
+    - 67.96
+    - -0.5
+    - -53.72
+  position_017:
+    coordinates:
+      rx: 90.16
+      ry: 15.99
+      rz: 24.21
+      x: 172.57
+      y: -707.88
+      z: 303.84
+    metadata:
+      datetime: '2025-11-27T09:22:50.924472'
+      session_elapsed_seconds: 427.04480934143066
+      timestamp: 1764202970.9244697
+    tcp:
+    - 172.57
+    - -707.88
+    - 303.84
+    - 90.16
+    - 15.99
+    - 24.21
+  position_018:
+    coordinates:
+      rx: 89.6
+      ry: 9.08
+      rz: 51.33
+      x: 174.8
+      y: -697.49
+      z: 352.48
+    metadata:
+      datetime: '2025-11-27T09:23:26.197030'
+      session_elapsed_seconds: 462.3173644542694
+      timestamp: 1764203006.1970282
+    tcp:
+    - 174.8
+    - -697.49
+    - 352.48
+    - 89.6
+    - 9.08
+    - 51.33
+  position_019:
+    coordinates:
+      rx: 90.54
+      ry: 3.32
+      rz: -0.61
+      x: 102.67
+      y: -801.2
+      z: 221.8
+    metadata:
+      datetime: '2025-11-27T09:23:49.007177'
+      session_elapsed_seconds: 485.1275146007538
+      timestamp: 1764203029.0071752
+    tcp:
+    - 102.67
+    - -801.2
+    - 221.8
+    - 90.54
+    - 3.32
+    - -0.61
+  position_020:
+    coordinates:
+      rx: 68.16
+      ry: 5.24
+      rz: -2.92
+      x: 116.7
+      y: -643.56
+      z: 343.6
+    metadata:
+      datetime: '2025-11-27T09:24:00.675536'
+      session_elapsed_seconds: 496.79586911201477
+      timestamp: 1764203040.6755338
+    tcp:
+    - 116.7
+    - -643.56
+    - 343.6
+    - 68.16
+    - 5.24
+    - -2.92
+session_info:
+  robot_ip: 192.168.2.36
+  save_datetime: '2025-11-27T09:24:26.236536'
+  save_time: 1764203066.236535
+  session_id: '20251127_091543'
+  start_datetime: '2025-11-27T09:15:43.879676'
+  start_time: 1764202543.8796759
+  total_positions: 20

@@ -214,7 +214,7 @@ class MultiPositionCapture:
             self.robot.move_linear(position)
             
             # Wait for robot to settle
-            settle_time = 2.0  # seconds
+            settle_time = 1.0  # seconds
             print(f"[INFO] Waiting {settle_time}s for robot to settle...")
             time.sleep(settle_time)
             
@@ -553,25 +553,25 @@ def main():
     examples = {
         "1": {
             "name": "Simple 3x3 grid (±50mm XY)",
-            "reference": [-260, -800, 360, 78, 0, 0],
+            "reference": [-200, -800, 381, 78, 0, 0],
             "offsets": create_grid_offsets(
-                x_range=(-50, 50, 3),    # -50 to +50mm in X, 3 steps
-                y_range=(-50, 50, 3),    # -50 to +50mm in Y, 3 steps
+                x_range=(-15, 15, 3),    # -15 to +15mm in X, 3 steps
+                y_range=(-20, 20, 3),    # -20 to +20mm in Y, 3 steps
                 z_range=(0, 0, 1)        # No Z offset
             )
         },
         "2": {
             "name": "5x5 grid with Z variation (±30mm XY, ±20mm Z)",
-            "reference": [-260, -800, 360, 78, 0, 0],
+            "reference": [-200, -755, 361, 67, 0, 0], # XL5-40CT: [-200, -825, 381, 78, 0, 0], # SLP-DL413: [-200, -800, 350, 90, 0, 0], #XD5-40IIt:[-200, -800, 420, 75, 0, 0], #SLP-TX220:[-200, -800, 340, 77, 0, 0], #SRP-352:[-200, -800, 320, 79, 0, 0], #SLP-DX420: [-200, -800, 397, 70, 0, 0],# XD5-40d[-200, -800, 400, 67, 0, 0], # SLP-D220:[-200, -829, 381, 71, 0, 0],
             "offsets": create_grid_offsets(
-                x_range=(-30, 30, 5),    # 5x5 grid
-                y_range=(-30, 30, 5),
-                z_range=(-20, 20, 3)     # 3 Z levels
+                x_range=(-10, 10, 5),    # 5x5 grid
+                y_range=(-10, 10, 5),
+                z_range=(-4.5, 4.5, 4)     # 4 Z levels
             )
         },
         "3": {
             "name": "Linear sweep (X axis, 100mm range)",
-            "reference": [-260, -800, 360, 78, 0, 0],
+            "reference": [-260, -800, 360, 72, 0, 0],
             "offsets": create_grid_offsets(
                 x_range=(-50, 50, 11),   # 11 points along X
                 y_range=(0, 0, 1),       # No Y variation
@@ -580,15 +580,15 @@ def main():
         },
         "4": {
             "name": "Rotation test (±15° around each axis)",
-            "reference": [-260, -800, 360, 78, 0, 0],
+            "reference": [-260, -800, 360, 72, 0, 0],
             "offsets": create_grid_offsets(
                 x_range=(0, 0, 1),       # No translation
                 y_range=(0, 0, 1),
                 z_range=(0, 0, 1),
                 rotation_offsets=[
-                    (10, 0, 0), (-10, 0, 0),    # X rotation
-                    (0, 10, 0), (0, -10, 0),    # Y rotation
-                    (0, 0, 10), (0, 0, -10)     # Z rotation
+                    (5, 0, 0), (-5, 0, 0),    # X rotation
+                    (0, 5, 0), (0, -5, 0),    # Y rotation
+                    (0, 0, 5), (0, 0, -5)     # Z rotation
                 ]
             )
         },

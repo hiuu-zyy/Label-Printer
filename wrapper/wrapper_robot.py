@@ -109,12 +109,20 @@ class SimpleRobot:
         time.sleep(2)
         print("Gripper initialized")
 
-    def rotate_screw(self):
+    def rotate_screw1(self):
         ManualScript("digital_out 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1")
         print("Screw rotated")
 
-    def stop_screw_rotation(self):
+    def rotate_screw(self):
+        ManualScript("digital_out_pwm_ctrl 0,1,250,50")
+        print("Screw rotated")
+
+    def stop_screw_rotation1(self):
         ManualScript("digital_out 0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1")
+        print("Screw rotation stopped")
+
+    def stop_screw_rotation(self):
+        ManualScript("digital_out_pwm_ctrl 0,0,0,0")
         print("Screw rotation stopped")
 
     def disconnect(self):
